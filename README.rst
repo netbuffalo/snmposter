@@ -134,7 +134,7 @@ WebAPI Usage
     $ sudo snmposter -f agents.csv -w 8888
 
     # update mib objects.
-    $ curl -v -H "Content-type: application/json" -X POST --data @/path/to/data.json http://snmposter:8088/mib/oper/update
+    $ curl -v -H "Content-type: application/json" -X POST --data @/path/to/data.json http://snmposter-host:8088/mib/oper/update
 
     # json format.
     $ cat /pat/to/data.json
@@ -146,6 +146,6 @@ WebAPI Usage
     }
     
     # updated?
-    $ snmpget -v1 -c public 192.168.0.194 .1.3.6.1.2.1.1.1.0
+    $ snmpget -v1 -c public 127.0.1.11 .1.3.6.1.2.1.1.1.0
     iso.3.6.1.2.1.1.1.0 = STRING: "UPDATED DESCRIPTION."
 
