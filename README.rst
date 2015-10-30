@@ -21,112 +21,52 @@ and installed from source.
 Installation
 =============================================================================
 
-I recommend installing *snmposter* within a Python virtualenv. This makes it
-easier to install on operating systems such as CentOS 5 where the default
-system Python version is older than 2.5. Due to the dependency on *Twisted*,
-snmposter requires Python 2.5 or newer.
+Follow the basic guidelines to use snmposter on CentOS.
 
-Red Hat Enterprise Linux or CentOS 6
+  https://github.com/cluther/snmposter
+
+
+Ubuntu 14.04
 -----------------------------------------------------------------------------
 
-The following steps are specific to Red Hat Enterprise Linux 6 or one of its
-compatible distributions such as CentOS.
 
 1. Install Python development tools.
 
    .. sourcecode:: bash
 
-      yum -y install python-devel gcc
+      $ sudo apt-get install gcc python-dev python-tornado git-core
 
-2. Install, setup and activate virtualenv.
-
-   .. sourcecode:: bash
-
-      yum -y install python-virtualenv
-      virtualenv /snmposter
-      source /snmposter/bin/activate
-
-3. Install TwistedSNMP dependency.
+2. Install TwistedSNMP dependency.
 
    .. sourcecode:: bash
 
-      wget http://downloads.sourceforge.net/project/twistedsnmp/twistedsnmp/0.3.13/TwistedSNMP-0.3.13.tar.gz
-      tar -xzf TwistedSNMP-0.3.13.tar.gz
-      cd TwistedSNMP-0.3.13
-      python setup.py install
-      cd ..
+      $ wget http://downloads.sourceforge.net/project/twistedsnmp/twistedsnmp/0.3.13/TwistedSNMP-0.3.13.tar.gz
+      $ tar -xzf TwistedSNMP-0.3.13.tar.gz
+      $ cd TwistedSNMP-0.3.13
+      $ sudo python setup.py install
+      $ cd ..
 
-4. Install PySNMP-SE dependency.
-
-   .. sourcecode:: bash
-
-      wget http://downloads.sourceforge.net/project/twistedsnmp/pysnmp-se/3.5.2/pysnmp-se-3.5.2.tar.gz
-      tar -xzf pysnmp-se-3.5.2.tar.gz
-      cd pysnmp-se-3.5.2
-      python setup.py install
-      cd ..
-
-5. Install snmposter.
+3. Install PySNMP-SE dependency.
 
    .. sourcecode:: bash
 
-      pip install snmposter
+      $ wget http://downloads.sourceforge.net/project/twistedsnmp/pysnmp-se/3.5.2/pysnmp-se-3.5.2.tar.gz
+      $ tar -xzf pysnmp-se-3.5.2.tar.gz
+      $ cd pysnmp-se-3.5.2
+      $ python setup.py install
+      $ cd ..
 
-
-Red Hat Enterprise Linux or CentOS 5
------------------------------------------------------------------------------
-
-The following steps are specific to Red Hat Enterprise Linux 5 or one of its
-compatible distributions such as CentOS.
-
-1. Install the EPEL repository.
+4. Install my snmposter.
 
    .. sourcecode:: bash
 
-      rpm -ivh http://mirror.cogentco.com/pub/linux/epel/5/i386/epel-release-5-4.noarch.rpm
-
-2. Install Python 2.6 and development tools.
-
-   .. sourcecode:: bash
-
-      yum -y --enablerepo=epel install python26-devel gcc
-
-2. Install, setup and activate virtualenv.
-
-   .. sourcecode:: bash
-
-      yum -y --enablerepo=epel install python26-virtualenv
-      virtualenv-2.6 /snmposter
-      source /snmposter/bin/activate
-
-3. Install TwistedSNMP dependency.
-
-   .. sourcecode:: bash
-
-      wget http://downloads.sourceforge.net/project/twistedsnmp/twistedsnmp/0.3.13/TwistedSNMP-0.3.13.tar.gz
-      tar -xzf TwistedSNMP-0.3.13.tar.gz
-      cd TwistedSNMP-0.3.13
-      python setup.py install
-      cd ..
-
-4. Install PySNMP-SE dependency.
-
-   .. sourcecode:: bash
-
-      wget http://downloads.sourceforge.net/project/twistedsnmp/pysnmp-se/3.5.2/pysnmp-se-3.5.2.tar.gz
-      tar -xzf pysnmp-se-3.5.2.tar.gz
-      cd pysnmp-se-3.5.2
-      python setup.py install
-      cd ..
-
-5. Install snmposter.
-
-   .. sourcecode:: bash
-
-      pip install snmposter
+      $ git clone https://github.com/netbuffalo/snmposter.git
+      $ cd snmposter
+      $ sudo python setup.py install
+      $ cd ..
 
 
-Usage
+Basic Usage
 =============================================================================
 
 Installing will create a command line tool called `snmposter`. This tool
@@ -183,7 +123,29 @@ Don't worry if you get an error like `Cannot find module (none): At line 0 in
 (none)` as this is expected and a result of us trying to load a non-existent
 MIB.
 
-Usage - Web API
+
+WebAPI Usage
 =============================================================================
 
+
+.. sourcecode:: bash
+
+    # start snmposter.
+    $ sudo snmposter -f agents.csv -w 8888
+
+    # update mib objects.
+    $ curl -v -H "Content-type: application/json" -X POST --data @/path/to/data.json http://snmposter:8088/mib/oper/update
+
+    # json format.
+    $ cat /pat/to/data.json
+    {
+    "127.0.1.11": [ # agent address.
+    { "oid":".1.3.6.1.2.1.1.1.0" , "type":"STRING", "value":"UPDATED DESCRIPTION." }, # OID, Data Type, Object Value
+    { "oid":".1.3.6.1.2.1.1.3.0" , "type":"Timeticks", "value":"0" }
+    ]
+    }
+    
+    # updated?
+    $ snmpget -v1 -c public 192.168.0.194 .1.3.6.1.2.1.1.1.0
+    iso.3.6.1.2.1.1.1.0 = STRING: "UPDATED DESCRIPTION."
 

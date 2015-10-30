@@ -288,7 +288,8 @@ class MibOperation(tornado.web.RequestHandler):
                             v = v2c.ObjectIdentifier(str_v)
                
                         elif type_ == 'STRING':
-                            v = '\n'.join(str_v)
+                            value = [str(str_v)]
+                            v = '\n'.join(value)
                
                         elif type_ == 'Timeticks':
                             v = v2c.TimeTicks(int(str_v))
