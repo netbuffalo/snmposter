@@ -83,13 +83,12 @@ Example usage:
 
 .. sourcecode:: bash
 
-   source /snmposter/bin/activate
-   snmposter -f /etc/snmposter/agents.csv
+   $ sudo snmposter -f /path/to/agents.csv
 
 Example contents of `/etc/snmposter/agents.csv`::
 
-    /etc/snmposter/agents/Cisco_2811.snmpwalk,127.0.1.11
-    /etc/snmposter/agents/NetApp_Filer_FAS3020.snmpwalk,127.0.1.12
+    /path/to/Cisco_2811.snmpwalk,127.0.1.11
+    /path/to/NetApp_Filer_FAS3020.snmpwalk,127.0.1.12
 
 This example usage will cause snmposter to run in the background, create two
 new IP aliases on the loopback interface (127.0.1.11 and 127.0.1.12), and
@@ -113,7 +112,11 @@ Example snmpwalk command to generate the above `Cisco_2811.snmpwalk` file:
 
 .. sourcecode:: bash
 
-   snmpwalk -v2c -c public -ObentU localhost .1 > Cisco_2811.snmpwalk
+   # SNMPv1
+   $ snmpwalk -v1 -c public -ObentU cisco2811-address .1 > Cisco_2811.snmpwalk
+
+   # SNMPv2c
+   $ snmpbulkwalk -v2c -c public -ObentU cisco2811-address .1 > Cisco_2811.snmpwalk
 
 The important command line options are `-m none -O enU` to get the raw output and '-C c' 
 to ignore out of sequence responses from the switch. (Sometimes this validation error is 
