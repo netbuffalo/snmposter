@@ -130,17 +130,19 @@ WebAPI Usage
 
 .. sourcecode:: bash
 
-    # start snmposter.
+    # start snmposter (WebAPI port: 8888).
     $ sudo snmposter -f agents.csv -w 8888
 
     # update mib objects.
-    $ curl -v -H "Content-type: application/json" -X POST --data @/path/to/data.json http://snmposter-host:8088/mib/oper/update
+    $ curl -v -H "Content-type: application/json" -X POST --data @/path/to/data.json \
+      http://snmposter-host:8888/mib/oper/update
 
     # json format.
     $ cat /pat/to/data.json
     {
     "127.0.1.11": [ # agent address.
-    { "oid":".1.3.6.1.2.1.1.1.0" , "type":"STRING", "value":"UPDATED DESCRIPTION." }, # OID, Data Type, Object Value
+    # {OID, Data Type, Object Value}
+    { "oid":".1.3.6.1.2.1.1.1.0" , "type":"STRING", "value":"UPDATED DESCRIPTION." },
     { "oid":".1.3.6.1.2.1.1.3.0" , "type":"Timeticks", "value":"0" }
     ]
     }
