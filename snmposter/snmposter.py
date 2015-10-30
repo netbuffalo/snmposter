@@ -26,6 +26,13 @@ import os
 import re
 import csv
 
+# netbuffalo - for WebAPI
+import threading
+import tornado.web
+import tornado.ioloop
+from tornado.escape import json_encode
+
+ip2faker = {}
 
 # twistedsnmp has a bug that causes it to fail to properly convert
 # Counter64 values. We workaround this by retroactively fixing datatypes
@@ -61,9 +68,11 @@ def sanitize_dotted(string):
 
 class SNMPosterFactory:
     agents = []
+    webport = 8888 # netbuffalo
 
-    def configure(self, filename):
-        reader = csv.reader(open(filename, "rb"))
+    def configure(self, options):
+        self.webport = int(options.webport)
+        reader = csv.reader(open(options.filename, "rb"))
         for row in reader:
             if row[0].startswith('#'):
                 continue
@@ -83,7 +92,12 @@ class SNMPosterFactory:
                 print "WARNING: Unable to add loopback alias on this platform."
 
             faker = SNMPoster(a['ip'], a['filename'])
+            ip2faker[a['ip']] = faker # netbuffalo
             faker.run()
+
+        # netbuffalo - start tornado web server when reactor run.
+        webapi = WebAPI(self.webport)
+        reactor.callWhenRunning(webapi.start)
 
         daemonize()
         reactor.run()
@@ -96,6 +110,7 @@ class SNMPoster:
     def __init__(self, ip, filename):
         self.ip = ip
         self.oids = {}
+        self.snmp_agent = None # netbuffalo
 
         oid = ''
         type_ = ''
@@ -183,17 +198,27 @@ class SNMPoster:
         return conv
 
     def start(self):
-        reactor.listenUDP(
-            161, agentprotocol.AgentProtocol(
-                snmpVersion='v2c',
-                agent=agent.Agent(
+        self.snmp_agent = agent.Agent(
                     dataStore=bisectoidstore.BisectOIDStore(
                         OIDs=self.oids,
                         ),
-                    ),
+                    )
+        reactor.listenUDP(
+            161, agentprotocol.AgentProtocol(
+                snmpVersion='v2c',
+                 agent=self.snmp_agent, # netbuffalo
+ #               agent=agent.Agent(
+ #                   dataStore=bisectoidstore.BisectOIDStore(
+ #                       OIDs=self.oids,
+ #                       ),
+ #                   ),
                 ),
                 interface=self.ip,
             )
+
+    # netbuffalo - update mib objects
+    def updateOIDs(self, variables):
+        self.snmp_agent.setOIDs(variables)
 
     def run(self):
         reactor.callWhenRunning(self.start)
@@ -219,3 +244,75 @@ def daemonize():
     except OSError, e:
         print >>sys.stderr, "fork #2 failed: %d (%s)" % (e.errno, e.strerror)
         sys.exit(1)
+
+class MibOperation(tornado.web.RequestHandler):
+
+    def post(self, oper = None):
+
+        if "Content-Type" in self.request.headers and self.request.headers['Content-Type'] == "application/json":
+
+            if oper and oper == "update":
+                data = tornado.escape.json_decode(self.request.body)
+
+                for ip, variables in data.items():
+	            faker = ip2faker[ip]
+                    update_vars = []
+
+                    for var in variables:
+                        oid = var['oid']
+                        str_v = var['value']
+                        type_ = var['type']
+
+                        if type_ == 'Counter32':
+                            v = v2c.Counter32(int(str_v))
+
+                        elif type_ == 'Counter64':
+                            v = rfc1902.Counter64(long(str_v))
+
+                        elif type_ == 'Gauge32':
+                            v = v2c.Gauge32(int(str_v))
+
+                        elif type_ == 'Hex-STRING':
+                            value = [str_v]
+                            value = [sanitize_dotted(x) for x in value]
+                            v = ''.join(
+                                [chr(int(c, 16)) for c in ' '.join(value).split(' ')])
+                        elif type_ == 'INTEGER':
+                            v = int(str_v)
+
+                        elif type_ == 'IpAddress':
+                            str_v = sanitize_dotted(str_v)
+                            v = v2c.IpAddress(str_v)
+               
+                        elif type_ == 'OID':
+                            v = v2c.ObjectIdentifier(str_v)
+               
+                        elif type_ == 'STRING':
+                            v = '\n'.join(str_v)
+               
+                        elif type_ == 'Timeticks':
+                            v = v2c.TimeTicks(int(str_v))
+
+                        update_vars.append([oid, v])
+
+	            faker.updateOIDs(update_vars)
+
+
+class WebApplication(tornado.web.Application):
+
+    def __init__(self):
+        handlers = [(r"/mib/oper/?(.*)", MibOperation)]
+        settings = {}
+        tornado.web.Application.__init__(self, handlers, **settings)
+
+
+class WebAPI(threading.Thread):
+
+    def __init__(self, webport):
+        self.port = webport
+        super(WebAPI, self).__init__()
+
+    def run(self):
+        WebApplication().listen(self.port, '0.0.0.0')
+        tornado.ioloop.IOLoop.instance().start()
+

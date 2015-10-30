@@ -27,12 +27,15 @@ def launcher():
     parser.add_option('-f', '--file', dest='filename',
             default='agents.csv',
             help='snmposter configuration file')
+    parser.add_option('-w', '--web', dest='webport',
+            default='8888',
+            help='snmposter web API port')
     options, args = parser.parse_args()
 
     factory = SNMPosterFactory()
 
     try:
-        factory.configure(options.filename)
+        factory.configure(options)
     except IOError:
         print >> sys.stderr, "Error opening %s." % options.filename
         sys.exit(1)
