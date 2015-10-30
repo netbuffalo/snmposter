@@ -34,7 +34,7 @@ Ubuntu 14.04
 
    .. sourcecode:: bash
 
-      $ sudo apt-get install gcc python-dev python-tornado git-core
+      $ sudo apt-get install gcc python-dev python-setuptools python-tornado git-core
 
 2. Install TwistedSNMP dependency.
 
@@ -53,7 +53,7 @@ Ubuntu 14.04
       $ wget http://downloads.sourceforge.net/project/twistedsnmp/pysnmp-se/3.5.2/pysnmp-se-3.5.2.tar.gz
       $ tar -xzf pysnmp-se-3.5.2.tar.gz
       $ cd pysnmp-se-3.5.2
-      $ python setup.py install
+      $ sudo python setup.py install
       $ cd ..
 
 4. Install my snmposter.
