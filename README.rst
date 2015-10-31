@@ -153,7 +153,7 @@ WebAPI Usage
       http://snmposter-host:8888/mib/oper/update
 
     # json format.
-    $ cat /pat/to/data.json
+    $ cat /path/to/data.json
     {
     "127.0.1.11": [ # agent address.
     # {OID, Data Type, Object Value}
