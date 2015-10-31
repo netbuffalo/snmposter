@@ -166,3 +166,4 @@ WebAPI Usage
     $ snmpget -v1 -c public 127.0.1.11 .1.3.6.1.2.1.1.1.0
     iso.3.6.1.2.1.1.1.0 = STRING: "UPDATED DESCRIPTION."
 
+Check here for details: http://netbuffalo.doorblog.jp/archives/5133720.html
