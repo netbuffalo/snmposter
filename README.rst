@@ -113,10 +113,22 @@ Example snmpwalk command to generate the above `Cisco_2811.snmpwalk` file:
 .. sourcecode:: bash
 
    # SNMPv1
-   $ snmpwalk -v1 -c public -ObentU cisco2811-address .1 > Cisco_2811.snmpwalk
+   $ snmpwalk -v1 -c public -ObenU cisco2811-address .1 > Cisco_2811.snmpwalk
 
    # SNMPv2c
-   $ snmpbulkwalk -v2c -c public -ObentU cisco2811-address .1 > Cisco_2811.snmpwalk
+   $ snmpbulkwalk -v2c -c public -ObenU cisco2811-address .1 > Cisco_2811.snmpwalk
+
+   $ head Cisco_2811.snmpwalk
+   .1.3.6.1.2.1.1.1.0 = STRING: "Cisco Internetwork Operating System Software IOS (tm)..."
+   .1.3.6.1.2.1.1.2.0 = OID: .1.3.6.1.4.1.9.1.317
+   .1.3.6.1.2.1.1.3.0 = Timeticks: (880537345) 101 days, 21:56:13.45
+   .1.3.6.1.2.1.1.4.0 = STRING: "netbuffalo"
+   .1.3.6.1.2.1.1.5.0 = ""
+   .1.3.6.1.2.1.1.6.0 = ""
+   .1.3.6.1.2.1.1.7.0 = INTEGER: 12
+   .1.3.6.1.2.1.2.1.0 = INTEGER: 5746
+   .1.3.6.1.2.1.2.2.1.1.1 = INTEGER: 1
+   .1.3.6.1.2.1.2.2.1.1.2 = INTEGER: 2
 
 The important command line options are `-m none -O enU` to get the raw output and '-C c' 
 to ignore out of sequence responses from the switch. (Sometimes this validation error is 
