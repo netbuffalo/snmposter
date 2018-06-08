@@ -113,10 +113,10 @@ Example snmpwalk command to generate the above `Cisco_2811.snmpwalk` file:
 .. sourcecode:: bash
 
    # SNMPv1
-   $ snmpwalk -v1 -c public -OQsbenU cisco2811-address .1 > Cisco_2811.snmpwalk
+   $ snmpwalk -v1 -c public -OxbenU cisco2811-address .1 > Cisco_2811.snmpwalk
 
    # SNMPv2c
-   $ snmpbulkwalk -v2c -c public -OQsbenU cisco2811-address .1 > Cisco_2811.snmpwalk
+   $ snmpbulkwalk -v2c -c public -OxbenU cisco2811-address .1 > Cisco_2811.snmpwalk
 
    $ head Cisco_2811.snmpwalk
    .1.3.6.1.2.1.1.1.0 = STRING: "Cisco Internetwork Operating System Software IOS (tm)..."
